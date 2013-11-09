@@ -112,7 +112,7 @@ CLEAN.include("src")
       release = ENV['GO_PIPELINE_COUNTER'] || ENV['RELEASE'] || 1
       cd 'pkg' do
         command = %Q{
-          bundle exec fpm -s dir -t #{distro} --name ruby-#{full_version} -a x86_64 --version "#{version}.#{patch}" -C #{jailed_root} --verbose #{fpm_opts} --maintainer snap-ci@thoughtworks.com --vendor snap-ci@thoughtworks.com --url http://snap-ci.com --description "#{description_string}" --iteration #{release} .
+          bundle exec fpm -s dir -t #{distro} --name ruby-#{full_version} -a x86_64 --version "#{version}.#{patch}" -C #{jailed_root} --directories #{prefix} --verbose #{fpm_opts} --maintainer snap-ci@thoughtworks.com --vendor snap-ci@thoughtworks.com --url http://snap-ci.com --description "#{description_string}" --iteration #{release} .
         }
         sh(command)
       end
