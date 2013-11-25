@@ -40,9 +40,11 @@ CLEAN.include("src")
   '1.9.3-p194' => {},
   '1.9.3-p286' => {},
   '1.9.3-p392' => {},
+  '1.9.3-p484' => {},
   '2.0.0-p0'   => {},
   '2.0.0-p195' => {},
   '2.0.0-p247' => {},
+  '2.0.0-p353' => {}
 }.sort.each do |full_version, opts|
   namespace full_version do
     version, patch = *full_version.split(/-p/)
