@@ -3,10 +3,6 @@ require 'bundler/setup'
 
 require 'rake/clean'
 
-ENV['CFLAGS'] = '-march=native -O3 -pipe -fomit-frame-pointer -O3 -fPIC'
-ENV['CPPFLAGS'] = ENV['CFLAGS']
-ENV['CXXFLAGS'] = ENV['CFLAGS']
-
 distro = nil
 fpm_opts = ""
 
