@@ -33,8 +33,8 @@ CLEAN.include("pkg")
 CLEAN.include("src")
 
 {
-  '1.8.7-p358' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.6' : '/usr/bin/gcc'}},
-  '1.8.7-p371' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.6' : '/usr/bin/gcc'}},
+  # '1.8.7-p358' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.6' : '/usr/bin/gcc'}},
+  # '1.8.7-p371' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.6' : '/usr/bin/gcc'}},
   '1.9.2-p290' => {},
   '1.9.2-p320' => {},
   '1.9.3-p194' => {},
