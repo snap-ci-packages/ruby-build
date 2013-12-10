@@ -29,18 +29,18 @@ CLEAN.include("pkg")
 CLEAN.include("src")
 
 {
-  '1.8.7-p358' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.6' : '/usr/bin/gcc'}},
-  '1.8.7-p371' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.6' : '/usr/bin/gcc'}},
-  '1.9.2-p290' => {},
-  '1.9.2-p320' => {},
-  '1.9.3-p194' => {},
-  '1.9.3-p286' => {},
-  '1.9.3-p392' => {},
-  '1.9.3-p484' => {},
-  '2.0.0-p0'   => {},
-  '2.0.0-p195' => {},
-  '2.0.0-p247' => {},
-  '2.0.0-p353' => {}
+  '1.8.7-p358' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '1.8.7-p371' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '1.9.2-p290' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '1.9.2-p320' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '1.9.3-p194' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '1.9.3-p286' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '1.9.3-p392' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '1.9.3-p484' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '2.0.0-p0'   => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '2.0.0-p195' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '2.0.0-p247' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
+  '2.0.0-p353' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}}
 }.sort.each do |full_version, opts|
   namespace full_version do
     version, patch = *full_version.split(/-p/)
