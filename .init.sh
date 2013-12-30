@@ -5,4 +5,4 @@ if [ -z "$BUNDLE_PATH" ]
 then
    BUNDLE_PATH=".bundle"
 fi
-bundle install --local --path $BUNDLE_PATH --binstubs --clean
+bundle install --path $BUNDLE_PATH --binstubs --clean
