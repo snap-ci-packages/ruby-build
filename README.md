@@ -3,7 +3,7 @@ This repo contains scripts needed to build deb and rpms for various versions of 
 # CentOS/RHEL
 
 <pre>
-$ yum install -y rpm-build rpmdevtools readline-devel ncurses-devel gdbm-devel tcl-devel openssl-devel db4-devel byacc
+$ yum install -y rpm-build rpmdevtools readline-devel ncurses-devel gdbm-devel tcl-devel openssl-devel db4-devel byacc gcc libffi-devel libffi libxml2-devel libxslt-devel
 $ bundle install --path .bundle
 </pre>
 
