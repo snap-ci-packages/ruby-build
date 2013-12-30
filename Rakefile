@@ -71,6 +71,10 @@ CLEAN.include("src")
       cd "src" do
         sh("tar -zxf ../downloads/ruby-#{full_version}.tar.gz")
         cd "ruby-#{full_version}" do
+          if version =~ /1.8.7|1.9.2/
+            patch_command = "patch -p0 < #{File.dirname(File.expand_path(__FILE__))}/patches/ssl_no_ec2m.patch"
+            sh(patch_command)
+          end
           gcc_command = opts[:env][:CC] rescue 'gcc'
           sh("CC=#{gcc_command} ./configure --prefix=#{prefix} --enable-shared --enable-rpath --disable-install-doc --disable-install-rdoc > #{File.dirname(__FILE__)}/log/configure.#{full_version}.log 2>&1")
         end
