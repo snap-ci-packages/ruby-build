@@ -71,7 +71,7 @@ CLEAN.include("src")
       cd "src" do
         sh("tar -zxf ../downloads/ruby-#{full_version}.tar.gz")
         cd "ruby-#{full_version}" do
-          if %w(1.8.7-p358 1.8.7-p371 1.9.2-p290 1.9.2-p320 1.9.3-p194 1.9.3-p286 1.9.3-p392 2.0.0-p0).include?(full_version)
+          if %w(1.8.7-p358 1.8.7-p371 1.9.2-p290 1.9.2-p320 1.9.3-p194 1.9.3-p286 1.9.3-p392 2.0.0-p0 2.0.0-p195).include?(full_version)
             patch_command = "patch -p0 < #{File.dirname(File.expand_path(__FILE__))}/patches/ssl_no_ec2m.patch"
             sh(patch_command)
           end
