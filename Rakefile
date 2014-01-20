@@ -41,11 +41,11 @@ if redhat?
   '1.9.3-p392' => compile_opts.merge(:patch => true),
   '2.0.0-p0'   => compile_opts.merge(:patch => true),
   '2.0.0-p195' => compile_opts.merge(:patch => true),
-  '2.0.0-p247' => compile_opts.merge(:patch => true),
+  '2.0.0-p247' => compile_opts.merge(:patch => true)
   }
 end
 
-rubies = rubies.merge({ '1.9.3-p484' => compile_opts, '2.0.0-p353' => compile_opts})
+rubies = rubies.merge({ '1.9.3-p484' => compile_opts, '2.0.0-p353' => compile_opts, '2.1.0' => compile_opts})
 
 rubies.sort.each do |full_version, opts|
   namespace full_version do
