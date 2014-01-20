@@ -6,6 +6,14 @@ require 'rake/clean'
 distro = nil
 fpm_opts = ""
 
+def debian?
+ File.exist?('/etc/os-release') && File.read('/etc/os-release') =~ /ubuntu|debian/i
+end
+
+def redhat?
+  File.exist?('/etc/system-release') && File.read('/etc/redhat-release') =~ /centos|redhat|fedora|amazon/i
+end
+
 if redhat?
   distro = 'rpm'
   fpm_opts << " --rpm-user root --rpm-group root "
@@ -136,11 +144,3 @@ end
 
 desc "build all rubies"
 task :default
-
-def debian?
- File.exist?('/etc/os-release') && File.read('/etc/os-release') =~ /ubuntu|debian/i
-end
-
-def redhat?
-  File.exist?('/etc/system-release') && File.read('/etc/redhat-release') =~ /centos|redhat|fedora|amazon/i
-end
