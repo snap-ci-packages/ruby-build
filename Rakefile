@@ -28,20 +28,28 @@ CLEAN.include("log")
 CLEAN.include("pkg")
 CLEAN.include("src")
 
-{
-  '1.8.7-p358' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '1.8.7-p371' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '1.9.2-p290' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '1.9.2-p320' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '1.9.3-p194' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '1.9.3-p286' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '1.9.3-p392' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '1.9.3-p484' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '2.0.0-p0'   => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '2.0.0-p195' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '2.0.0-p247' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}},
-  '2.0.0-p353' => {:env => {:CC => File.exist?('/etc/debian_version') ? '/usr/bin/gcc-4.4' : '/usr/bin/gcc'}}
-}.sort.each do |full_version, opts|
+if File.exist?('/etc/debian_version')
+  compile_opts = {:CC => '/usr/bin/gcc-4.4'}
+else
+  compile_opts = {:CC => '/usr/bin/gcc' }
+end
+
+rubies = {
+  '1.8.7-p358' => compile_opts.merge(:patch => true),
+  '1.8.7-p371' => compile_opts.merge(:patch => true),
+  '1.9.2-p290' => compile_opts.merge(:patch => true),
+  '1.9.2-p320' => compile_opts.merge(:patch => true),
+  '1.9.3-p194' => compile_opts.merge(:patch => true),
+  '1.9.3-p286' => compile_opts.merge(:patch => true),
+  '1.9.3-p392' => compile_opts.merge(:patch => true),
+  '1.9.3-p484' => compile_opts,
+  '2.0.0-p0'   => compile_opts.merge(:patch => true),
+  '2.0.0-p195' => compile_opts.merge(:patch => true),
+  '2.0.0-p247' => compile_opts.merge(:patch => true),
+  '2.0.0-p353' => compile_opts
+}
+
+rubies.sort.each do |full_version, opts|
   namespace full_version do
     version, patch = *full_version.split(/-p/)
 
@@ -71,11 +79,11 @@ CLEAN.include("src")
       cd "src" do
         sh("tar -zxf ../downloads/ruby-#{full_version}.tar.gz")
         cd "ruby-#{full_version}" do
-          if %w(1.8.7-p358 1.8.7-p371 1.9.2-p290 1.9.2-p320 1.9.3-p194 1.9.3-p286 1.9.3-p392 2.0.0-p0 2.0.0-p195 2.0.0-p247).include?(full_version)
+          if opts[:patch]
             patch_command = "patch -p0 < #{File.dirname(File.expand_path(__FILE__))}/patches/ssl_no_ec2m.patch"
             sh(patch_command)
           end
-          gcc_command = opts[:env][:CC] rescue 'gcc'
+          gcc_command = opts[:CC] rescue 'gcc'
           sh("CC=#{gcc_command} ./configure --prefix=#{prefix} --enable-shared --enable-rpath --disable-install-doc --disable-install-rdoc > #{File.dirname(__FILE__)}/log/configure.#{full_version}.log 2>&1")
         end
       end
