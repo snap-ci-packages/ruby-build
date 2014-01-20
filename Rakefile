@@ -6,18 +6,19 @@ require 'rake/clean'
 distro = nil
 fpm_opts = ""
 
-if File.exist?('/etc/system-release') && File.read('/etc/redhat-release') =~ /centos|redhat|fedora|amazon/i
+if redhat?
   distro = 'rpm'
   fpm_opts << " --rpm-user root --rpm-group root "
   fpm_opts <<  " --depends 'libyaml-devel' --depends 'openssl-devel' --depends 'readline-devel' "
-elsif File.exist?('/etc/os-release') && File.read('/etc/os-release') =~ /ubuntu|debian/i
+  compile_opts = {:CC => '/usr/bin/gcc' }
+elsif debian?
   distro = 'deb'
   fpm_opts << " --deb-user root --deb-group root "
   fpm_opts << " --depends 'libyaml-dev' --depends 'libssl-dev' --depends 'libreadline-dev' "
-end
-
-unless distro
+  compile_opts = {:CC => '/usr/bin/gcc-4.4'}
+else
   $stderr.puts "Don't know what distro I'm running on -- not sure if I can build!"
+  abort
 end
 
 extra_header_files = %w(debug.h eval_intern.h id.h insns.inc insns_info.inc iseq.h method.h node.h revision.h ruby_atomic.h thread_pthread.h version.h vm_core.h vm_opts.h)
@@ -28,13 +29,9 @@ CLEAN.include("log")
 CLEAN.include("pkg")
 CLEAN.include("src")
 
-if File.exist?('/etc/debian_version')
-  compile_opts = {:CC => '/usr/bin/gcc-4.4'}
-else
-  compile_opts = {:CC => '/usr/bin/gcc' }
-end
-
-rubies = {
+rubies = {}
+if redhat?
+  rubies = {
   '1.8.7-p358' => compile_opts.merge(:patch => true),
   '1.8.7-p371' => compile_opts.merge(:patch => true),
   '1.9.2-p290' => compile_opts.merge(:patch => true),
@@ -42,12 +39,13 @@ rubies = {
   '1.9.3-p194' => compile_opts.merge(:patch => true),
   '1.9.3-p286' => compile_opts.merge(:patch => true),
   '1.9.3-p392' => compile_opts.merge(:patch => true),
-  '1.9.3-p484' => compile_opts,
   '2.0.0-p0'   => compile_opts.merge(:patch => true),
   '2.0.0-p195' => compile_opts.merge(:patch => true),
   '2.0.0-p247' => compile_opts.merge(:patch => true),
-  '2.0.0-p353' => compile_opts
-}
+  }
+end
+
+rubies = rubies.merge({ '1.9.3-p484' => compile_opts, '2.0.0-p353' => compile_opts})
 
 rubies.sort.each do |full_version, opts|
   namespace full_version do
@@ -138,3 +136,11 @@ end
 
 desc "build all rubies"
 task :default
+
+def debian?
+ File.exist?('/etc/os-release') && File.read('/etc/os-release') =~ /ubuntu|debian/i
+end
+
+def redhat?
+  File.exist?('/etc/system-release') && File.read('/etc/redhat-release') =~ /centos|redhat|fedora|amazon/i
+end
