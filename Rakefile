@@ -96,10 +96,14 @@ rubies.sort.each do |full_version, opts|
             sh(patch_command)
           end
 
-          sh('vim -E -s bootstraptest/test_io.rb <<-EOF
-:%s/^10\.times do\(.*\n\)\{-}end//
-:w!
-EOF') if File.exists?('bootstraptest/test_io.rb')
+          if File.exists?('bootstraptest/test_io.rb')
+            test_io_content = File.read('bootstraptest/test_io.rb')
+            test_io_content.gsub!(/^10\.times do.*?end/m, '')
+
+            File.open('bootstraptest/test_io.rb','w') do |f|
+              f.puts test_io_content
+            end
+          end
 
           gcc_command = opts[:CC] rescue 'gcc'
           sh("CC=#{gcc_command} ./configure --prefix=#{prefix} --enable-shared --enable-rpath --disable-install-doc --disable-install-rdoc > #{File.dirname(__FILE__)}/log/configure.#{full_version}.log 2>&1")
