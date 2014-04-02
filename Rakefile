@@ -48,16 +48,8 @@ compile_opts = compile_opts.merge(:patch => true) if redhat?
 
 rubies = rubies.merge(
   {
-    '1.8.7-p358' => compile_opts,
     '1.8.7-p371' => compile_opts,
-    '1.9.2-p290' => compile_opts,
     '1.9.2-p320' => compile_opts,
-    '1.9.3-p194' => compile_opts,
-    '1.9.3-p286' => compile_opts,
-    '1.9.3-p392' => compile_opts,
-    '2.0.0-p0'   => compile_opts,
-    '2.0.0-p195' => compile_opts,
-    '2.0.0-p247' => compile_opts
   }
 )
 
