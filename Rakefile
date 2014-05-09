@@ -41,7 +41,8 @@ rubies = {
   '1.9.3-p484' => compile_opts,
   '2.0.0-p353' => compile_opts,
   '2.1.0'      => compile_opts,
-  '2.1.1'      => compile_opts
+  '2.1.1'      => compile_opts,
+  '2.1.2'      => compile_opts
 }
 
 compile_opts = compile_opts.merge(:patch => true) if redhat?
