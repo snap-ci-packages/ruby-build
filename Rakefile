@@ -72,7 +72,7 @@ rubies.sort.each do |full_version, opts|
 
     task :download do
       cd 'downloads' do
-        url, checksum = %x[curl --fail https://raw.github.com/sstephenson/ruby-build/master/share/ruby-build/#{full_version} 2>/dev/null].lines.grep(/ruby-lang.org/).first.gsub('"', '').split[2].split('#')
+        url, checksum = %x[curl --fail https://raw.githubusercontent.com/sstephenson/ruby-build/master/share/ruby-build/#{full_version} 2>/dev/null].lines.grep(/ruby-lang.org/).first.gsub('"', '').split[2].split('#')
         ruby_source = File.basename(url)
         sh("curl --fail #{url} > #{ruby_source} 2>/dev/null")
         sh("echo '#{checksum}  #{ruby_source}' > #{ruby_source}.md5")
