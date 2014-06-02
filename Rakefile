@@ -76,8 +76,8 @@ rubies.sort.each do |full_version, opts|
         url, checksum = %x[curl --fail https://raw.githubusercontent.com/sstephenson/ruby-build/master/share/ruby-build/#{full_version} 2>/dev/null].lines.grep(/ruby-lang.org/).first.gsub('"', '').split[2].split('#')
         ruby_source = File.basename(url)
         sh("curl --fail #{url} > #{ruby_source} 2>/dev/null")
-        sh("echo '#{checksum}  #{ruby_source}' > #{ruby_source}.md5")
-        sh("md5sum --check --status #{ruby_source}.md5")
+        sh("echo '#{checksum}  #{ruby_source}' > #{ruby_source}.sha2")
+        sh("sha256sum --check --status #{ruby_source}.sha2")
       end
     end
 
