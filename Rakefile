@@ -136,7 +136,7 @@ rubies.sort.each do |full_version, opts|
 
       description_string = %Q{Ruby is the interpreted scripting language for quick and easy object-oriented programming. It has many features to process text files and to do system management tasks, as in Perl. It is simple, straight-forward, extensible, and portable.}
 
-      release = ENV['GO_PIPELINE_COUNTER'] || ENV['RELEASE'] || 1
+      release = Time.now.utc.strftime('%Y%m%d%H%M%S')
       cd 'pkg' do
         command = %Q{
           bundle exec fpm -s dir -t #{distro} --name ruby-#{full_version} -a x86_64 --version "#{version}.#{patch}" -C #{jailed_root} --directories #{prefix} --verbose #{fpm_opts} --maintainer snap-ci@thoughtworks.com --vendor snap-ci@thoughtworks.com --url http://snap-ci.com --description "#{description_string}" --iteration #{release} .
