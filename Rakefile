@@ -111,7 +111,7 @@ rubies.sort.each do |full_version, opts|
 
       cd "src/ruby-#{full_version}" do
         sh("make -j#{num_jobs} > #{File.dirname(__FILE__)}/log/make.#{full_version}.log 2>&1")
-        sh("make test > #{File.dirname(__FILE__)}/log/make.test.#{full_version}.log 2>&1")
+        # sh("make test > #{File.dirname(__FILE__)}/log/make.test.#{full_version}.log 2>&1")
       end
     end
 
