@@ -18,7 +18,7 @@ if redhat?
   distro = 'rpm'
   fpm_opts << " --rpm-user root --rpm-group root "
   fpm_opts <<  " --depends 'libyaml-devel' --depends 'openssl-devel' --depends 'readline-devel' "
-  compile_opts = {:CC => '/usr/bin/gcc' }
+  compile_opts = {:CC => '/usr/local/bin/gcc' }
 elsif debian?
   distro = 'deb'
   fpm_opts << " --deb-user root --deb-group root "
