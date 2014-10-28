@@ -38,7 +38,7 @@ CLEAN.include("pkg")
 CLEAN.include("src")
 
 rubies = {
-  '1.9.3-p484' => compile_opts.merge(:patch => true),
+  '1.9.3-p484' => compile_opts.merge(:patch => false),
   '2.0.0-p353' => compile_opts.merge(:patch => true),
   '2.1.0'      => compile_opts.merge(:patch => true),
   '2.1.1'      => compile_opts.merge(:patch => true),
@@ -93,9 +93,9 @@ rubies.sort.each do |full_version, opts|
 
           if opts[:patch]
             if patch
-              sh("curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
+              sh("set -o pipefail; curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
             else
-              sh("curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
+              sh("set -o pipefail; curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
             end
           end
 
