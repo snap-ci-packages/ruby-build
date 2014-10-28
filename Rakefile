@@ -38,20 +38,20 @@ CLEAN.include("pkg")
 CLEAN.include("src")
 
 rubies = {
-  '1.9.3-p484' => compile_opts,
-  '2.0.0-p353' => compile_opts,
-  '2.1.0'      => compile_opts,
-  '2.1.1'      => compile_opts,
-  '2.1.2'      => compile_opts,
-  '2.1.3'      => compile_opts
+  '1.9.3-p484' => compile_opts.merge(:patch => true),
+  '2.0.0-p353' => compile_opts.merge(:patch => true),
+  '2.1.0'      => compile_opts.merge(:patch => true),
+  '2.1.1'      => compile_opts.merge(:patch => true),
+  '2.1.2'      => compile_opts.merge(:patch => true),
+  '2.1.3'      => compile_opts.merge(:patch => true)
 }
 
-compile_opts = compile_opts.merge(:patch => true) if redhat?
+compile_opts = compile_opts.merge(:ssl_patch => true) if redhat?
 
 rubies = rubies.merge(
   {
-    '1.8.7-p371' => compile_opts,
-    '1.9.2-p320' => compile_opts,
+    '1.8.7-p371' => compile_opts.merge(:patch => true),
+    '1.9.2-p320' => compile_opts.merge(:patch => true),
   }
 )
 
@@ -86,9 +86,17 @@ rubies.sort.each do |full_version, opts|
       cd "src" do
         sh("tar -zxf ../downloads/ruby-#{full_version}.tar.gz")
         cd "ruby-#{full_version}" do
-          if opts[:patch]
+          if opts[:ssl_patch]
             patch_command = "patch -p0 < #{File.dirname(File.expand_path(__FILE__))}/patches/ssl_no_ec2m.patch"
             sh(patch_command)
+          end
+
+          if opts[:patch]
+            if patch
+              sh("curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/#{patch}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/#{patch}/% | patch -p1")
+            else
+              sh("curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
+            end
           end
 
           if File.exists?('bootstraptest/test_io.rb')
