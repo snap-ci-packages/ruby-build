@@ -51,7 +51,7 @@ compile_opts = compile_opts.merge(:ssl_patch => true) if redhat?
 rubies = rubies.merge(
   {
     '1.8.7-p371' => compile_opts.merge(:patch => true),
-    '1.9.2-p320' => compile_opts.merge(:patch => true),
+    '1.9.2-p320' => compile_opts.merge(:patch => false),
   }
 )
 
