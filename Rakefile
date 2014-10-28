@@ -93,9 +93,9 @@ rubies.sort.each do |full_version, opts|
 
           if opts[:patch]
             if patch
-              sh("curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
+              sh("curl --silent --fail --location https://raw.githubusercontent.com/ketan/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/ketan/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
             else
-              sh("curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
+              sh("curl --silent --fail --location https://raw.githubusercontent.com/ketan/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl --silent --fail --location https://raw.githubusercontent.com/ketan/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
             end
           end
 
