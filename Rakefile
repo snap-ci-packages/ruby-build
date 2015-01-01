@@ -46,7 +46,8 @@ rubies = {
   '2.1.2'      => compile_opts,
   '2.1.3'      => compile_opts,
   '2.1.4'      => compile_opts,
-  '2.1.5'      => compile_opts
+  '2.1.5'      => compile_opts,
+  '2.2.0'      => compile_opts,
 }
 
 compile_opts = compile_opts.merge(:patch => true) if redhat?
