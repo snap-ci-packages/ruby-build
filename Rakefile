@@ -38,7 +38,7 @@ CLEAN.include("pkg")
 CLEAN.include("src")
 
 rubies = {
-  '1.9.3-p551' => compile_opts.merge(:patchsets => true),
+  '1.9.3-p551' => compile_opts,
   '2.0.0-p353' => compile_opts.merge(:patchsets => true),
   '2.0.0-p598' => compile_opts.merge(:patchsets => true),
   '2.1.0'      => compile_opts,
