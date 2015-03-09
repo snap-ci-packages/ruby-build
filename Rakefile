@@ -114,8 +114,7 @@ rubies.sort.each do |full_version, opts|
       mkdir_p output_dir
 
       cd "#{jailed_root}/#{prefix}" do
-        command = "tar -zcvf  ../#{output_dir}/ruby-#{full_version}.tar.gz ."
-        sh(command)
+        sh("tar -zcvf  ../#{output_dir}/ruby-#{full_version}.tar.gz .")
       end
     end
 
