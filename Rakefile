@@ -1,129 +1,119 @@
 require 'rubygems'
-require 'rake/clean'
+require 'bundler/setup'
+require 'snap_ci/parallel_tests'
 
-compile_opts = {:CC => '/usr/bin/gcc' }
+compile_opts = { :CC => '/usr/bin/gcc' }
 
 extra_header_files = %w(debug.h eval_intern.h id.h insns.inc insns_info.inc iseq.h method.h node.h revision.h ruby_atomic.h thread_pthread.h version.h vm_core.h vm_opts.h)
 
-CLEAN.include("downloads")
-CLEAN.include("jailed-root")
-CLEAN.include("log")
-CLEAN.include("pkg")
-CLEAN.include("src")
 
-rubies = {
-  '1.8.7-p371' => compile_opts.merge(:openssl_patch => true),
-  '1.9.2-p320' => compile_opts.merge(:openssl_patch => true),
-  '1.9.3-p551' => compile_opts,
-  '2.0.0-p353' => compile_opts.merge(:patchsets => true),
-  '2.0.0-p598' => compile_opts.merge(:patchsets => true),
-  '2.1.0'      => compile_opts,
-  '2.1.1'      => compile_opts,
-  '2.1.2'      => compile_opts,
-  '2.1.3'      => compile_opts,
-  '2.1.4'      => compile_opts,
-  '2.1.5'      => compile_opts,
-  '2.2.0'      => compile_opts,
-}
-
-rubies.sort.each do |full_version, opts|
-  namespace full_version do
-    version, patch = *full_version.split(/-p/)
-
-    prefix = File.join("/opt/local/rbenv/versions", full_version)
-
-    CLEAN.include("#{version}/p#{patch}/ruby-#{full_version}")
-
-    task :init do
-      mkdir_p "log"
-      mkdir_p "pkg"
-      mkdir_p "src"
-      mkdir_p "downloads"
-      mkdir_p "jailed-root"
-    end
-
-    task :download do
-      cd 'downloads' do
-        url, checksum = %x[curl --silent --fail https://raw.githubusercontent.com/sstephenson/ruby-build/master/share/ruby-build/#{full_version} 2>/dev/null].lines.grep(/ruby-lang.org/).first.gsub('"', '').split[2].split('#')
-        ruby_source = File.basename(url)
-        sh("curl --silent --fail #{url} > #{ruby_source} 2>/dev/null")
-        sh("echo '#{checksum}  #{ruby_source}' > #{ruby_source}.sha2")
-        sh("sha256sum --check --status #{ruby_source}.sha2")
-      end
-    end
-
-    task :configure do
-      cd "src" do
-        sh("tar -zxf ../downloads/ruby-#{full_version}.tar.gz")
-        cd "ruby-#{full_version}" do
-          if opts[:patchsets]
-            if patch == ''
-              sh("set -o pipefail; curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
-            else
-              sh("set -o pipefail; curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
-            end
-          end
-          if opts[:openssl_patch]
-            patch_command = "patch -p0 < #{File.dirname(File.expand_path(__FILE__))}/patches/ssl_no_ec2m.patch"
-            sh(patch_command)
-          end
-
-          if File.exists?('bootstraptest/test_io.rb')
-            test_io_content = File.read('bootstraptest/test_io.rb')
-            test_io_content.gsub!(/^10\.times do.*?end/m, '')
-
-            File.open('bootstraptest/test_io.rb','w') do |f|
-              f.puts test_io_content
-            end
-          end
-
-          gcc_command = opts[:CC] rescue 'gcc'
-          sh("CC=#{gcc_command} ./configure --prefix=#{prefix} --enable-shared --enable-rpath --disable-install-doc --disable-install-rdoc > #{File.dirname(__FILE__)}/log/configure.#{full_version}.log 2>&1")
-        end
-      end
-    end
-
-    task :make do
-      num_processors = %x[nproc].chomp.to_i
-      num_jobs       = num_processors + 1
-
-      cd "src/ruby-#{full_version}" do
-        sh("make -j#{num_jobs} > #{File.dirname(__FILE__)}/log/make.#{full_version}.log 2>&1")
-        # sh("make test > #{File.dirname(__FILE__)}/log/make.test.#{full_version}.log 2>&1")
-      end
-    end
-
-    task :make_install do
-      jailed_root = File.join(File.expand_path("../jailed-root", __FILE__))
-      rm_rf jailed_root
-      mkdir_p jailed_root
-      cd "src/ruby-#{full_version}" do
-        sh("make install DESTDIR=#{jailed_root} > #{File.dirname(__FILE__)}/log/make-install.#{full_version}.log 2>&1")
-
-        if include_dir = Dir["#{jailed_root}/#{prefix}/include/ruby-*/"].first
-          Dir["{#{extra_header_files.join(',')}}"].each do |f|
-            cp f, include_dir
-          end
-        end
-      end
-    end
-
-    task :tar do
-      jailed_root = File.join(File.expand_path("../jailed-root", __FILE__))
-      output_dir = File.expand_path('../pkg/centos/6/x86_64', __FILE__)
-      mkdir_p output_dir
-
-      cd File.dirname("#{jailed_root}/#{prefix}") do
-        sh("tar -zcf  #{output_dir}/ruby-#{full_version}.tar.gz .")
-      end
-    end
-
-    desc "build and package ruby-#{full_version}"
-    task :all => [:clean, :init, :download, :configure, :make, :make_install, :tar]
-  end
-
-  task :default => "#{full_version}:all"
+task :clean do
+  rm_rf 'src'
+  rm_rf 'log'
+  rm_rf 'pkg'
 end
 
-desc "build all rubies"
-task :default
+task :init do
+  mkdir_p 'src'
+  mkdir_p 'log'
+  mkdir_p 'pkg'
+  sh('git clone --depth 1 --quiet git://github.com/sstephenson/ruby-build.git src/ruby-build')
+  sh('git clone --depth 1 --quiet git://github.com/skaes/rvm-patchsets.git src/rvm-patchsets')
+end
+
+class Ruby
+  include Rake::DSL
+  attr_reader :full_version, :jailed_root
+
+  def initialize(full_version, jailed_root)
+    @full_version = full_version
+    @jailed_root = jailed_root
+    @full_version.freeze
+  end
+
+  def version
+    full_version.split(/-/).first
+  end
+
+  def hyphenated_version
+    if full_version =~ /-/
+      full_version.split(/-/).last
+    end
+  end
+
+  def patch_level
+    if full_version =~ /-p/
+      full_version.split(/-p/).last
+    end
+  end
+
+  def apply_patchset?
+    true
+  end
+
+  def openssl_patch?
+    false
+  end
+
+  def prefix
+    "/opt/local/rbenv/versions/#{full_version}"
+  end
+
+  def build_command
+    if patch_files.empty?
+      "RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose  #{full_version} #{prefix} > log/ruby-#{full_version}.log 2>&1"
+    else
+      "cat #{patch_files.join(' ')} | RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose --patch #{full_version} #{prefix} > log/ruby-#{full_version}.log 2>&1"
+    end
+  end
+
+  def patch_files
+    patch_files = []
+    if apply_patchset?
+      if patch_level == nil || patch_level == ''
+        patchset_list_file = "src/rvm-patchsets/patchsets/ruby/#{version}/railsexpress"
+
+        if File.exists?(patchset_list_file)
+          patch_files = File.read(patchset_list_file).lines.collect(&:chomp)
+          patch_files = patch_files.collect { |pf| "src/rvm-patchsets/patches/ruby/#{version}/#{pf}" }
+        end
+      else
+        patchset_list_file = "src/rvm-patchsets/patchsets/ruby/#{version}/p#{patch_level}/railsexpress"
+
+        if File.exists?(patchset_list_file)
+          patch_files = File.read(patchset_list_file).lines.collect(&:chomp)
+          patch_files.collect { |pf| "src/rvm-patchsets/patches/ruby/#{version}/p#{patch_level}/#{pf}" }
+        end
+      end
+      true
+    end
+    patch_files
+  end
+
+  def patch_file
+    "/tmp/ruby-#{full_version}.patch"
+  end
+end
+
+
+jailed_root = File.join(File.expand_path('../jailed-root', __FILE__))
+output_dir = File.join(File.expand_path('../pkg', __FILE__))
+
+desc 'build all rubies'
+task :default => [:clean, :init] do
+  all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.delete_if { |f| f =~ /rbx|ree|maglev|jruby|mruby|topaz|-rc|-dev|-review/ }.collect { |f| File.basename(f) }.collect(&:chomp)
+  rubies_to_build = SnapCI::ParallelTests.partition(:things => all_versions).collect { |v| Ruby.new(v, jailed_root) }.reverse
+  rubies_to_build.each do |ruby|
+    if only_build_version = ENV['ONLY_BUILD']
+      next if only_build_version != ruby.full_version
+    end
+
+    $stdout.puts "Building ruby #{ruby.full_version}"
+
+    rm_rf ruby.prefix
+    sh(ruby.build_command)
+    cd File.dirname(ruby.prefix) do
+      sh("tar --owner=root --group=root -zcf #{output_dir}/ruby-#{ruby.full_version}.tar.gz ./#{ruby.full_version}")
+    end
+  end
+end
