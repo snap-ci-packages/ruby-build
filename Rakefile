@@ -122,6 +122,7 @@ task :default => [:clean, :init] do
           sh("tar --owner=root --group=root -zcf #{output_dir}/ruby-#{ruby.full_version}.tar.gz ./#{ruby.full_version}")
         end
       else
+        $stderr.puts "Failed to build #{ruby.full_version}"
         rubies_that_failed << ruby
       end
     end
