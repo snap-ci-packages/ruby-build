@@ -126,11 +126,10 @@ task :default => [:clean, :init] do
         rubies_that_failed << ruby
       end
     end
+  end
 
     if rubies_that_failed.any?
       $stderr.puts "The following rubies failed to build - #{rubies_that_failed.collect(&:full_version).join(', ')}"
       exit(1)
     end
-
-  end
 end
