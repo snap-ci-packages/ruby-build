@@ -113,9 +113,7 @@ rubies.sort.each do |full_version, opts|
       mkdir_p "pkg"
 
       cd jailed_root do
-        command = %Q{
-          tar -zcvf  ../pkg/ruby-#{full_version}.tar.gz #{jailed_root}
-        }
+        command = "tar -zcvf  ../pkg/ruby-#{full_version}.tar.gz ."
         sh(command)
       end
     end
