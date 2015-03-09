@@ -110,11 +110,11 @@ rubies.sort.each do |full_version, opts|
 
     task :tar do
       jailed_root = File.join(File.expand_path("../jailed-root", __FILE__))
-      output_dir = 'pkg/centos/6/x86_64'
+      output_dir = File.expand_path('../pkg/centos/6/x86_64', __FILE__)
       mkdir_p output_dir
 
       cd File.dirname("#{jailed_root}/#{prefix}") do
-        sh("tar -zcvf  ../#{output_dir}/ruby-#{full_version}.tar.gz .")
+        sh("tar -zcvf  #{output_dir}/ruby-#{full_version}.tar.gz .")
       end
     end
 
