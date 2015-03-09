@@ -102,7 +102,12 @@ output_dir = File.join(File.expand_path('../pkg', __FILE__))
 desc 'build all rubies'
 task :default => [:clean, :init] do
   all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.delete_if { |f| f =~ /rbx|ree|maglev|jruby|mruby|topaz|-rc|-dev|-review/ }.collect { |f| File.basename(f) }.collect(&:chomp)
-  rubies_to_build = SnapCI::ParallelTests.partition(:things => all_versions).collect { |v| Ruby.new(v, jailed_root) }.reverse
+  versions_to_build = SnapCI::ParallelTests.partition(:things => all_versions)
+  $stdout.puts "Here is the list of rubies that will be built on this worker - #{versions_to_build.join(', ')}"
+  rubies_to_build = versions_to_build.collect { |v| Ruby.new(v, jailed_root) }.reverse
+
+  rubies_that_failed = []
+
   rubies_to_build.each do |ruby|
     if only_build_version = ENV['ONLY_BUILD']
       next if only_build_version != ruby.full_version
@@ -111,9 +116,20 @@ task :default => [:clean, :init] do
     $stdout.puts "Building ruby #{ruby.full_version}"
 
     rm_rf ruby.prefix
-    sh(ruby.build_command)
-    cd File.dirname(ruby.prefix) do
-      sh("tar --owner=root --group=root -zcf #{output_dir}/ruby-#{ruby.full_version}.tar.gz ./#{ruby.full_version}")
+    sh(ruby.build_command) do |ok, res|
+      if ok
+        cd File.dirname(ruby.prefix) do
+          sh("tar --owner=root --group=root -zcf #{output_dir}/ruby-#{ruby.full_version}.tar.gz ./#{ruby.full_version}")
+        end
+      else
+        rubies_that_failed << ruby
+      end
     end
+
+    if rubies_that_failed.any?
+      $stderr.puts "The following rubies failed to build - #{rubies_that_failed.collect(&:full_version).join(', ')}"
+      exit(1)
+    end
+
   end
 end
