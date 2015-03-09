@@ -44,9 +44,9 @@ rubies.sort.each do |full_version, opts|
 
     task :download do
       cd 'downloads' do
-        url, checksum = %x[curl --fail https://raw.githubusercontent.com/sstephenson/ruby-build/master/share/ruby-build/#{full_version} 2>/dev/null].lines.grep(/ruby-lang.org/).first.gsub('"', '').split[2].split('#')
+        url, checksum = %x[curl --silent --fail https://raw.githubusercontent.com/sstephenson/ruby-build/master/share/ruby-build/#{full_version} 2>/dev/null].lines.grep(/ruby-lang.org/).first.gsub('"', '').split[2].split('#')
         ruby_source = File.basename(url)
-        sh("curl --fail #{url} > #{ruby_source} 2>/dev/null")
+        sh("curl --silent --fail #{url} > #{ruby_source} 2>/dev/null")
         sh("echo '#{checksum}  #{ruby_source}' > #{ruby_source}.sha2")
         sh("sha256sum --check --status #{ruby_source}.sha2")
       end
@@ -58,9 +58,9 @@ rubies.sort.each do |full_version, opts|
         cd "ruby-#{full_version}" do
           if opts[:patchsets]
             if patch == ''
-              sh("set -o pipefail; curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
+              sh("set -o pipefail; curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
             else
-              sh("set -o pipefail; curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
+              sh("set -o pipefail; curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl --silent --fail https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
             end
           end
           if opts[:openssl_patch]
