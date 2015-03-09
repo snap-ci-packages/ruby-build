@@ -113,7 +113,7 @@ rubies.sort.each do |full_version, opts|
       output_dir = 'pkg/centos/6/x86_64'
       mkdir_p output_dir
 
-      cd "#{jailed_root}/#{prefix}" do
+      cd File.dirname("#{jailed_root}/#{prefix}") do
         sh("tar -zcvf  ../#{output_dir}/ruby-#{full_version}.tar.gz .")
       end
     end
