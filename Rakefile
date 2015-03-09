@@ -112,7 +112,7 @@ rubies.sort.each do |full_version, opts|
       jailed_root = File.join(File.expand_path("../jailed-root", __FILE__))
       mkdir_p "pkg"
 
-      cd jailed_root do
+      cd "#{jailed_root}/#{prefix}" do
         command = "tar -zcvf  ../pkg/ruby-#{full_version}.tar.gz ."
         sh(command)
       end
