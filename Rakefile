@@ -61,9 +61,9 @@ class Ruby
 
   def build_command
     if patch_files.empty?
-      "RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose  #{full_version} #{prefix} > log/ruby-#{full_version}.log 2>&1"
+      "RUBY_BUILD_SKIP_MIRROR=true RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose  #{full_version} #{prefix} > log/ruby-#{full_version}.log 2>&1"
     else
-      "cat #{patch_files.join(' ')} | RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose --patch #{full_version} #{prefix} > log/ruby-#{full_version}.log 2>&1"
+      "cat #{patch_files.join(' ')} | RUBY_BUILD_SKIP_MIRROR=true RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose --patch #{full_version} #{prefix} > log/ruby-#{full_version}.log 2>&1"
     end
   end
 
