@@ -82,7 +82,7 @@ class Ruby
 
         if File.exists?(patchset_list_file)
           patch_files = File.read(patchset_list_file).lines.collect(&:chomp)
-          patch_files.collect { |pf| "src/rvm-patchsets/patches/ruby/#{version}/p#{patch_level}/#{pf}" }
+          patch_files = patch_files.collect { |pf| "src/rvm-patchsets/patches/ruby/#{version}/p#{patch_level}/#{pf}" }
         end
       end
       true
