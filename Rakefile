@@ -1,33 +1,7 @@
 require 'rubygems'
-require 'bundler/setup'
-
 require 'rake/clean'
 
-distro = nil
-fpm_opts = ""
-
-def debian?
- File.exist?('/etc/os-release') && File.read('/etc/os-release') =~ /ubuntu|debian/i
-end
-
-def redhat?
-  File.exist?('/etc/system-release') && File.read('/etc/redhat-release') =~ /centos|redhat|fedora|amazon/i
-end
-
-if redhat?
-  distro = 'rpm'
-  fpm_opts << " --rpm-user root --rpm-group root "
-  fpm_opts <<  " --depends 'libyaml-devel' --depends 'openssl-devel' --depends 'readline-devel' "
-  compile_opts = {:CC => '/usr/bin/gcc' }
-elsif debian?
-  distro = 'deb'
-  fpm_opts << " --deb-user root --deb-group root "
-  fpm_opts << " --depends 'libyaml-dev' --depends 'libssl-dev' --depends 'libreadline-dev' "
-  compile_opts = {:CC => '/usr/bin/gcc-4.4'}
-else
-  $stderr.puts "Don't know what distro I'm running on -- not sure if I can build!"
-  abort
-end
+compile_opts = {:CC => '/usr/bin/gcc' }
 
 extra_header_files = %w(debug.h eval_intern.h id.h insns.inc insns_info.inc iseq.h method.h node.h revision.h ruby_atomic.h thread_pthread.h version.h vm_core.h vm_opts.h)
 
@@ -38,6 +12,8 @@ CLEAN.include("pkg")
 CLEAN.include("src")
 
 rubies = {
+  '1.8.7-p371' => compile_opts.merge(:openssl_patch => true),
+  '1.9.2-p320' => compile_opts.merge(:openssl_patch => true),
   '1.9.3-p551' => compile_opts,
   '2.0.0-p353' => compile_opts.merge(:patchsets => true),
   '2.0.0-p598' => compile_opts.merge(:patchsets => true),
@@ -50,21 +26,11 @@ rubies = {
   '2.2.0'      => compile_opts,
 }
 
-compile_opts = compile_opts.merge(:patch => true) if redhat?
-
-rubies = rubies.merge(
-  {
-    '1.8.7-p371' => compile_opts,
-    '1.9.2-p320' => compile_opts,
-  }
-)
-
-
 rubies.sort.each do |full_version, opts|
   namespace full_version do
     version, patch = *full_version.split(/-p/)
 
-    prefix = File.join("/opt/local/ruby", full_version)
+    prefix = File.join("/opt/local/rbenv/versions", full_version)
 
     CLEAN.include("#{version}/p#{patch}/ruby-#{full_version}")
 
@@ -97,7 +63,7 @@ rubies.sort.each do |full_version, opts|
               sh("set -o pipefail; curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
             end
           end
-          if opts[:patch]
+          if opts[:openssl_patch]
             patch_command = "patch -p0 < #{File.dirname(File.expand_path(__FILE__))}/patches/ssl_no_ec2m.patch"
             sh(patch_command)
           end
@@ -142,23 +108,20 @@ rubies.sort.each do |full_version, opts|
       end
     end
 
-    task :fpm do
+    task :tar do
       jailed_root = File.join(File.expand_path("../jailed-root", __FILE__))
       mkdir_p "pkg"
 
-      description_string = %Q{Ruby is the interpreted scripting language for quick and easy object-oriented programming. It has many features to process text files and to do system management tasks, as in Perl. It is simple, straight-forward, extensible, and portable.}
-
-      release = Time.now.utc.strftime('%Y%m%d%H%M%S')
-      cd 'pkg' do
+      cd jailed_root do
         command = %Q{
-          bundle exec fpm -s dir -t #{distro} --name ruby-#{full_version} -a x86_64 --version "#{version}.#{patch}" -C #{jailed_root} --directories #{prefix} --verbose #{fpm_opts} --maintainer snap-ci@thoughtworks.com --vendor snap-ci@thoughtworks.com --url http://snap-ci.com --description "#{description_string}" --iteration #{release} .
+          tar -zcvf  ../pkg/ruby-#{full_version}.tar.gz #{jailed_root}
         }
         sh(command)
       end
     end
 
     desc "build and package ruby-#{full_version}"
-    task :all => [:clean, :init, :download, :configure, :make, :make_install, :fpm]
+    task :all => [:clean, :init, :download, :configure, :make, :make_install, :tar]
   end
 
   task :default => "#{full_version}:all"
