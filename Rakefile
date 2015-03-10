@@ -129,7 +129,8 @@ task :default => [:clean, :init] do
     sh(ruby.build_command) do |ok, res|
       if ok
         cd File.dirname(ruby.prefix) do
-          sh("unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install bundler rake --no-ri --no-rdoc")
+          sh("unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install bundler --no-ri --no-rdoc")
+          sh("unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install rake --force --no-ri --no-rdoc")
           sh("tar --owner=root --group=root -zcf #{output_dir}/ruby-#{ruby.full_version}.tar.gz ./#{ruby.full_version}")
         end
       else
@@ -137,6 +138,7 @@ task :default => [:clean, :init] do
         rubies_that_failed << ruby
       end
     end
+    rm_rf ruby.prefix
   end
 
   if rubies_that_failed.any?
