@@ -48,7 +48,7 @@ class Ruby
   end
 
   def apply_patchset?
-    true
+    false
   end
 
   def openssl_patch?
