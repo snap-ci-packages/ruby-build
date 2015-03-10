@@ -53,10 +53,11 @@ class Ruby
   end
 
   # apply openssl patch for rubies < 2.0.0-p247
-  def openssl_patch?
-    return true if version == '2.0.0' && patch_level.to_i <= 247
-    return true if version == '1.9.3' && patch_level.to_i < 484
-    return true if version == '1.9.2'
+  def openssl_patches
+    return ['patches/ssl_no_ec2m.patch'] if version == '2.0.0' && patch_level.to_i <= 247
+    return ['patches/ssl_no_ec2m.patch'] if version == '1.9.3' && patch_level.to_i < 484
+    return ['patches/ssl_no_ec2m.patch'] if version == '1.9.2'
+    []
   end
 
   def prefix
@@ -74,8 +75,8 @@ class Ruby
   def patch_files
     patch_files = []
 
-    if openssl_patch?
-      patch_files << 'patches/ssl_no_ec2m.patch'
+    if openssl_patches.any?
+      patch_files += openssl_patches
     end
 
     if apply_patchset?
@@ -110,7 +111,7 @@ output_dir = File.join(File.expand_path('../pkg', __FILE__))
 
 desc 'build all rubies'
 task :default => [:clean, :init] do
-  all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.delete_if { |f| f =~ /rbx|ree|maglev|jruby|mruby|topaz|-rc|-dev|-review|-preview/ }.collect { |f| File.basename(f) }.collect(&:chomp)
+  all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.delete_if { |f| f =~ /(^1.8.6)|(^1.8.7)|(^1.9.1)|(rbx)|(ree)|(maglev)|(jruby)|(mruby)|(topaz)|(-rc)|(-dev)|(-review)|(-preview)/ }.collect { |f| File.basename(f) }.collect(&:chomp)
   versions_to_build = SnapCI::ParallelTests.partition(:things => all_versions)
   $stdout.puts "Here is the list of rubies that will be built on this worker - #{versions_to_build.join(', ')}"
   rubies_to_build = versions_to_build.collect { |v| Ruby.new(v, jailed_root) }
