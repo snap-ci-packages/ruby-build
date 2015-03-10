@@ -177,6 +177,10 @@ task :default => [:clean, :init] do
     rm_rf ruby.prefix
   end
 
+  Dir['pkg/*.tar.gz'].each do |pkg_file|
+    sh("sha256sum #{pkg_file} > #{pkg_file}.sha256")
+  end
+
   if rubies_that_failed.any?
     $stderr.puts "The following rubies failed to build - #{rubies_that_failed.join(', ')}"
     exit(1)
