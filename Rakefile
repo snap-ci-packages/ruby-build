@@ -54,9 +54,7 @@ class Ruby
 
   # apply openssl patch for rubies < 2.0.0-p247
   def openssl_patch?
-    if Gem::Version.new(version) < Gem::Version.new('2.0.0')
-      true
-    elsif version == '2.0.0'
+    if version == '2.0.0'
       return true if patch_level.to_i <= 247
     end
   end
