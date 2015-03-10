@@ -54,9 +54,8 @@ class Ruby
 
   # apply openssl patch for rubies < 2.0.0-p247
   def openssl_patch?
-    if version == '2.0.0'
-      return true if patch_level.to_i <= 247
-    end
+    return true if version == '2.0.0' && patch_level.to_i <= 247
+    return true if version == '1.9.3' && patch_level.to_i < 484
   end
 
   def prefix
@@ -113,7 +112,7 @@ task :default => [:clean, :init] do
   all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.delete_if { |f| f =~ /rbx|ree|maglev|jruby|mruby|topaz|-rc|-dev|-review|-preview/ }.collect { |f| File.basename(f) }.collect(&:chomp)
   versions_to_build = SnapCI::ParallelTests.partition(:things => all_versions)
   $stdout.puts "Here is the list of rubies that will be built on this worker - #{versions_to_build.join(', ')}"
-  rubies_to_build = versions_to_build.collect { |v| Ruby.new(v, jailed_root) }.reverse
+  rubies_to_build = versions_to_build.collect { |v| Ruby.new(v, jailed_root) }
 
   rubies_that_failed = []
 
