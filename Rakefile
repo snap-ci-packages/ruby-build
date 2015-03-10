@@ -56,6 +56,7 @@ class Ruby
   def openssl_patch?
     return true if version == '2.0.0' && patch_level.to_i <= 247
     return true if version == '1.9.3' && patch_level.to_i < 484
+    return true if version == '1.9.2'
   end
 
   def prefix
