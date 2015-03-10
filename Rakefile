@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'snap_ci/parallel_tests'
+require 'rubygems/version'
 
 compile_opts = { :CC => '/usr/bin/gcc' }
 
@@ -51,8 +52,13 @@ class Ruby
     false
   end
 
+  # apply openssl patch for rubies < 2.0.0-p247
   def openssl_patch?
-    false
+    if Gem::Version.new(version) < Gem::Version.new('2.0.0')
+      true
+    elsif version == '2.0.0'
+      return true if patch_level.to_i <= 247
+    end
   end
 
   def prefix
@@ -69,6 +75,11 @@ class Ruby
 
   def patch_files
     patch_files = []
+
+    if openssl_patch?
+      patch_files << 'patches/ssl_no_ec2m.patch'
+    end
+
     if apply_patchset?
       if patch_level == nil || patch_level == ''
         patchset_list_file = "src/rvm-patchsets/patchsets/ruby/#{version}/railsexpress"
@@ -128,8 +139,8 @@ task :default => [:clean, :init] do
     end
   end
 
-    if rubies_that_failed.any?
-      $stderr.puts "The following rubies failed to build - #{rubies_that_failed.collect(&:full_version).join(', ')}"
-      exit(1)
-    end
+  if rubies_that_failed.any?
+    $stderr.puts "The following rubies failed to build - #{rubies_that_failed.collect(&:full_version).join(', ')}"
+    exit(1)
+  end
 end
