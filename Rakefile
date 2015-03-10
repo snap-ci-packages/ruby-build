@@ -163,8 +163,7 @@ task :default => [:clean, :init] do
           [
             "unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install bundler --no-ri --no-rdoc",
             "unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install rake --force --no-ri --no-rdoc",
-            "tar --owner=root --group=root -zcf #{output_dir}/#{ruby.dest_package_file_name} ./#{ruby.to_s}",
-            "cd pkg; sha256sum #{ruby.dest_package_file_name} > #{ruby.dest_package_file_name}.sha256"
+            "tar --owner=root --group=root -zcf #{output_dir}/#{ruby.dest_package_file_name} ./#{ruby.to_s}"
           ].each do |cmd|
             sh(cmd) do |ok, res|
               if !ok
@@ -180,6 +179,12 @@ task :default => [:clean, :init] do
       end
     end
     rm_rf ruby.prefix
+  end
+
+  cd "pkg" do
+    Dir['*.tar.gz'].each do |pkg_file|
+      sh("sha256sum #{pkg_file} > #{pkg_file}.sha256")
+    end
   end
 
   if rubies_that_failed.any?
