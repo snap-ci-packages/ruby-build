@@ -37,7 +37,7 @@ module Retriable
   #   with_retries(Service::Error, :sleep => 1) { ... }
   #
   def with_retries(*args, &block)
-    options = args.extract_options!
+    options = extract_options!(args)
     exceptions = args
 
     options[:limit] ||= 3
@@ -56,6 +56,11 @@ module Retriable
         raise e
       end
     end
+  end
+
+  private
+  def extract_options!(array)
+    array.last.is_a?(::Hash) ? array.pop : {}
   end
 end
 
@@ -211,7 +216,7 @@ task :default => [:clean, :init] do
         end
       end
     rescue => e
-      $stderr.puts "Failed to build #{ruby}"
+      $stderr.puts "Failed to build #{ruby} - #{e.message}"
       rubies_that_failed << ruby
     end
 
