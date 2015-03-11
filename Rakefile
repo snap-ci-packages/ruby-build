@@ -22,8 +22,46 @@ task :init do
   sh('git clone --depth 1 --quiet git://github.com/skaes/rvm-patchsets.git src/rvm-patchsets')
 end
 
+module Retriable
+  # This will catch any exception and retry twice (three tries total):
+  #   with_retries { ... }
+  #
+  # This will catch any exception and retry four times (five tries total):
+  #   with_retries(:limit => 5) { ... }
+  #
+  # This will catch a specific exception and retry once (two tries total):
+  #   with_retries(Some::Error, :limit => 2) { ... }
+  #
+  # You can also sleep inbetween tries. This is helpful if you're hoping
+  # that some external service recovers from its issues.
+  #   with_retries(Service::Error, :sleep => 1) { ... }
+  #
+  def with_retries(*args, &block)
+    options = args.extract_options!
+    exceptions = args
+
+    options[:limit] ||= 3
+    options[:sleep] ||= 0
+    exceptions = [Exception] if exceptions.empty?
+
+    retried = 0
+    begin
+      yield
+    rescue *exceptions => e
+      if retried + 1 < options[:limit]
+        retried += 1
+        sleep options[:sleep]
+        retry
+      else
+        raise e
+      end
+    end
+  end
+end
+
+include Retriable
+
 class Ruby
-  include Rake::DSL
   attr_reader :full_version, :jailed_root, :type
 
   def initialize(full_version, jailed_root)
@@ -136,7 +174,6 @@ class Ruby
   end
 end
 
-
 jailed_root = File.join(File.expand_path('../jailed-root', __FILE__))
 output_dir = File.join(File.expand_path('../pkg', __FILE__))
 
@@ -157,27 +194,27 @@ task :default => [:clean, :init] do
     $stdout.puts "Building ruby #{ruby}"
 
     rm_rf ruby.prefix
-    sh(ruby.build_command) do |ok, res|
-      if ok
-        cd File.dirname(ruby.prefix) do
+    begin
+      with_retries(limit: 5, sleep: 20) do
+        sh(ruby.build_command)
+      end
+
+      cd File.dirname(ruby.prefix) do
+        with_retries(limit: 5, sleep: 20) do
           [
             "unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install bundler --no-ri --no-rdoc",
             "unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install rake --force --no-ri --no-rdoc",
             "tar --owner=root --group=root -zcf #{output_dir}/#{ruby.dest_package_file_name} ./#{ruby.to_s}"
           ].each do |cmd|
-            sh(cmd) do |ok, res|
-              if !ok
-                $stderr.puts "Failed to build #{ruby}"
-                rubies_that_failed << ruby
-              end
-            end
+            sh(cmd)
           end
         end
-      else
-        $stderr.puts "Failed to build #{ruby}"
-        rubies_that_failed << ruby
       end
+    rescue => e
+      $stderr.puts "Failed to build #{ruby}"
+      rubies_that_failed << ruby
     end
+
     rm_rf ruby.prefix
   end
 
