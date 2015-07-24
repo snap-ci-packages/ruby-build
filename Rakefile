@@ -92,9 +92,9 @@ rubies.sort.each do |full_version, opts|
         cd "ruby-#{full_version}" do
           if opts[:patchsets]
             if patch == ''
-              sh("set -o pipefail; curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
+              sh("curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/railsexpress | xargs -I% curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/% | patch -p1")
             else
-              sh("set -o pipefail; curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
+              sh("curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patchsets/ruby/#{version}/p#{patch}/railsexpress | xargs -I% curl https://raw.githubusercontent.com/skaes/rvm-patchsets/master/patches/ruby/#{version}/p#{patch}/% | patch -p1")
             end
           end
           if opts[:patch]
