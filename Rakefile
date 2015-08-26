@@ -137,9 +137,9 @@ class Ruby
       return "src/ruby-build/bin/ruby-build --verbose #{to_s} #{prefix} > log/#{self}.log 2>&1"
     end
     if patch_files.empty?
-      "set -o pipefail; RUBY_BUILD_SKIP_MIRROR=true RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose #{full_version} #{prefix} > log/#{self}.log 2>&1"
+      "RUBY_BUILD_SKIP_MIRROR=true RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose #{full_version} #{prefix} > log/#{self}.log 2>&1"
     else
-      "set -o pipefail; cat #{patch_files.join(' ')} | RUBY_BUILD_SKIP_MIRROR=true RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose --patch #{full_version} #{prefix} > log/#{self}.log 2>&1"
+      "cat #{patch_files.join(' ')} | RUBY_BUILD_SKIP_MIRROR=true RUBY_CONFIGURE_OPTS='--disable-install-doc --disable-install-rdoc' src/ruby-build/bin/ruby-build --verbose --patch #{full_version} #{prefix} > log/#{self}.log 2>&1"
     end
   end
 
