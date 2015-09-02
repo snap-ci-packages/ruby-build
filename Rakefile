@@ -185,7 +185,7 @@ output_dir = File.join(File.expand_path('../pkg', __FILE__))
 
 desc 'build all rubies'
 task :default => [:clean, :init] do
-  all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.delete_if { |f| f =~ /(^1.8.6)|(^1.8.7)|(^1.9.1)|(^jruby-1.5)|(jruby-1.7.7)|(rbx)|(ree)|(maglev)|(mruby)|(topaz)|(-rc)|(-dev)|(-review)|(-preview)/ }.collect { |f| File.basename(f) }.collect(&:chomp)
+  all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.select { |f| =~ /(^2.0.0-p647)|(^2.1.0)(^2.1.5)(^2.2.0)(^2.2.3)/ }.collect { |f| File.basename(f) }.collect(&:chomp)
   versions_to_build = SnapCI::ParallelTests.partition(:things => all_versions)
   $stdout.puts "Here is the list of rubies that will be built on this worker - #{versions_to_build.join(', ')}"
   rubies_to_build = versions_to_build.collect { |v| Ruby.new(v, jailed_root) }
@@ -216,6 +216,7 @@ task :default => [:clean, :init] do
           end
         end
       end
+      $stdout.puts "Built #{ruby} successfully"
     rescue => e
       $stderr.puts "Failed to build #{ruby} - #{e.message}"
       rubies_that_failed << ruby
