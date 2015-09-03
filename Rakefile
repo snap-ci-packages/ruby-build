@@ -115,9 +115,9 @@ class Ruby
     false
   end
 
-  # apply openssl patch for rubies < 2.0.0-p247
   def patches_to_be_applied
     return ['patches/readline.patch'] if version == '2.1.0'
+    return ['patches/readline.patch'] if version == '2.1.1'
     return ['patches/ssl_no_ec2m.patch'] if version == '2.0.0' && patch_level.to_i <= 247
     return ['patches/readline-2.0.0-p451.patch'] if version == '2.0.0' && patch_level.to_i <= 451
     return ['patches/ssl_no_ec2m.patch'] if version == '1.9.3' && patch_level.to_i < 484
