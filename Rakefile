@@ -116,7 +116,8 @@ class Ruby
   end
 
   # apply openssl patch for rubies < 2.0.0-p247
-  def openssl_patches
+  def patches_to_be_applied
+    return ['patches/readline.patch'] if version == '2.1.0'
     return ['patches/ssl_no_ec2m.patch'] if version == '2.0.0' && patch_level.to_i <= 247
     return ['patches/ssl_no_ec2m.patch'] if version == '1.9.3' && patch_level.to_i < 484
     return ['patches/ssl_no_ec2m.patch'] if version == '1.9.2'
@@ -146,8 +147,8 @@ class Ruby
   def patch_files
     patch_files = []
 
-    if openssl_patches.any?
-      patch_files += openssl_patches
+    if patches_to_be_applied.any?
+      patch_files += patches_to_be_applied
     end
 
     if apply_patchset?
