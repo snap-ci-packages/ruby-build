@@ -2,21 +2,18 @@ This repo contains scripts needed to build deb and rpms for various versions of 
 
 # CentOS/RHEL
 
-<pre>
-$ yum install -y ruby rubygems ruby-devel rpm-build rpmdevtools readline-devel ncurses-devel gdbm-devel tcl-devel openssl-devel db4-devel byacc gcc libffi-devel libffi libxml2-devel libxslt-devel
-$ gem install bundler rake --no-ri --no-rdoc
-$ bundle install --path .bundle
-</pre>
+```sh
+$ ./setup_on_centos.sh
+```
 
 # Ubuntu
 
-<pre>
-$ apt-get install build-essentials dpkg-dev
-$ bundle install --path .bundle
-</pre>
+```sh
+$ ./setup_on_ubuntu.sh
+```
 
 # How to build one of the packages
 
-<pre>
+```sh
 $ rake
-</pre>
+```
