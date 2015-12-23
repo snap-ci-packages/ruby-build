@@ -183,16 +183,20 @@ end
 jailed_root = File.join(File.expand_path('../jailed-root', __FILE__))
 output_dir = File.join(File.expand_path('../pkg', __FILE__))
 
-desc 'build all rubies'
-task :default => [:clean, :init] do
+def rubies_to_build(jailed_root)
   all_versions = %x[src/ruby-build/bin/ruby-build --definitions].lines.delete_if { |f| f =~ /(^1.8.6)|(^1.8.7-p249)|(^1.9.1)|(^jruby-1.5)|(jruby-1.7.7)|(rbx)|(ree)|(maglev)|(mruby)|(topaz)|(-rc)|(-dev)|(-review)|(-preview)/ }.collect { |f| File.basename(f) }.collect(&:chomp)
   versions_to_build = SnapCI::ParallelTests.partition(:things => all_versions)
   $stdout.puts "Here is the list of rubies that will be built on this worker - #{versions_to_build.join(', ')}"
-  rubies_to_build = versions_to_build.collect { |v| Ruby.new(v, jailed_root) }
+  versions_to_build.collect { |v| Ruby.new(v, jailed_root) }
+end
+
+desc 'build all rubies'
+task :build => [:clean, :init] do
+  rubies = rubies_to_build(jailed_root)
 
   rubies_that_failed = []
 
-  rubies_to_build.each do |ruby|
+  rubies.each do |ruby|
     if only_build_version = ENV['ONLY_BUILD']
       next if only_build_version != ruby.to_s
     end
@@ -233,5 +237,14 @@ task :default => [:clean, :init] do
   if rubies_that_failed.any?
     $stderr.puts "The following rubies failed to build - #{rubies_that_failed.join(', ')}"
     exit(1)
+  end
+end
+
+desc 'verify that all versions can be downloaded from S3'
+task :verify_download => [:clean, :init] do
+  rubies = rubies_to_build(jailed_root)
+
+  rubies.each do |ruby|
+    sh("rbenv download #{ruby} && rbenv use #{ruby} && rbenv rehash #{ruby}")
   end
 end

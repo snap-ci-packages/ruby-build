@@ -3,3 +3,4 @@
 /.bundle/
 /bin/
 Gemfile.lock
+.idea
