@@ -245,6 +245,6 @@ task :verify_download => [:clean, :init] do
   rubies = rubies_to_build(jailed_root)
 
   rubies.each do |ruby|
-    sh("rbenv download #{ruby} && rbenv use #{ruby} && rbenv rehash #{ruby}")
+    sh("rbenv download #{ruby}")
   end
 end
