@@ -88,7 +88,7 @@ rubies.sort.each do |full_version, opts|
 
     task :configure do
       cd "src" do
-q        sh("tar -jxf ../downloads/ruby-#{full_version}.tar.bz2")
+        sh("tar -jxf ../downloads/ruby-#{full_version}.tar.bz2")
         cd "ruby-#{full_version}" do
           if opts[:patchsets]
             if patch == ''
