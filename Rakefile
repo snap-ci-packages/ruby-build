@@ -38,27 +38,9 @@ CLEAN.include("pkg")
 CLEAN.include("src")
 
 rubies = {
-  # '1.9.3-p551' => compile_opts,
-  # '2.0.0-p353' => compile_opts.merge(:patchsets => true),
   '2.0.0-p598' => compile_opts.merge(:patchsets => true),
-  # '2.1.0'      => compile_opts,
-  # '2.1.1'      => compile_opts,
-  # '2.1.2'      => compile_opts,
-  # '2.1.3'      => compile_opts,
-  # '2.1.4'      => compile_opts,
-  # '2.1.5'      => compile_opts,
-  # '2.2.0'      => compile_opts,
+  '2.2.4'      => compile_opts
 }
-
-# compile_opts = compile_opts.merge(:patch => true) if redhat?
-
-# rubies = rubies.merge(
-#   {
-#     '1.8.7-p371' => compile_opts,
-#     '1.9.2-p320' => compile_opts,
-#   }
-# )
-
 
 rubies.sort.each do |full_version, opts|
   namespace full_version do
