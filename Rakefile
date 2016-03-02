@@ -114,7 +114,8 @@ rubies.sort.each do |full_version, opts|
       rm_rf jailed_root
       mkdir_p jailed_root
       cd "src/ruby-#{full_version}" do
-        sh("make install DESTDIR=#{jailed_root} > #{File.dirname(__FILE__)}/log/make-install.#{full_version}.log 2>&1")
+        prevent_make_to_include_gem_home_inside_package='unset GEM_HOME GEM_PATH RUBYOPT'
+        sh("#{prevent_make_to_include_gem_home_inside_package}; make install DESTDIR=#{jailed_root} > #{File.dirname(__FILE__)}/log/make-install.#{full_version}.log 2>&1")
 
         if include_dir = Dir["#{jailed_root}/#{prefix}/include/ruby-*/"].first
           Dir["{#{extra_header_files.join(',')}}"].each do |f|
