@@ -214,6 +214,7 @@ task :build => [:clean, :init] do
           [
             "unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install bundler --no-ri --no-rdoc",
             "unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install rake --force --no-ri --no-rdoc",
+            "unset GEM_HOME GEM_PATH RUBYOPT BUNDLE_BIN_PATH BUNDLE_GEMFILE; export PATH=#{ruby.prefix}/bin:$PATH; #{ruby.prefix}/bin/gem install snap_deploy -v 0.1.4 --force --no-ri --no-rdoc",
             "tar --owner=root --group=root -zcf #{output_dir}/#{ruby.dest_package_file_name} ./#{ruby.to_s}"
           ].each do |cmd|
             sh(cmd)
