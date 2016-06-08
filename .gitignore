@@ -2,7 +2,6 @@
 /downloads/
 /.bundle/
 /bin/
-Gemfile.lock
 .idea
 /log/
 /pkg/
