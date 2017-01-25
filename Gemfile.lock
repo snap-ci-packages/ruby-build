@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    snap_ci-parallel_tests (0.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  snap_ci-parallel_tests
+
+BUNDLED WITH
+   1.14.3
