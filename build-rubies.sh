@@ -8,6 +8,7 @@ if !(which rbenv &> /dev/null); then
 fi
 
 readonly BUILD_TARGET_PATH="$(rbenv root)/versions"
+readonly OUTPUT_DIR="$(rm -rf pkg && mkdir -p pkg && cd pkg && pwd)"
 
 function fetch_ruby_versions() {
   cat <<LEGACY
@@ -31,6 +32,16 @@ function cleanup() {
   mkdir -p $BUILD_TARGET_PATH
 }
 
+trap cleanup ERR
+trap cleanup EXIT
+
+function build_ruby() {
+  local version=$1
+  rbenv install -f $version && \
+    RBENV_VERSION=$version rbenv exec gem install bundler rake --no-ri --no-rdoc && \
+    tar zcf $OUTPUT_DIR/$version.tar.gz -C $BUILD_TARGET_PATH $version
+}
+
 if [ $# -gt 0 ]; then
   rubies_to_build="$1"
 else
@@ -42,5 +53,15 @@ echo "This worker will build the following ruby versions: $rubies_to_build"
 cleanup
 
 for version in $rubies_to_build; do
-  rbenv install -f $version
+  build_ruby $version || failed_rubies="$failed_rubies $version"
 done
+
+if [ -n "$failed_rubies" ]; then
+  echo "The following ruby versions failed to build: $failed_rubies"
+  exit 1
+fi
+
+echo "Done"
+
+echo "Contents of $OUTPUT_DIR:"
+ls -l $OUTPUT_DIR
