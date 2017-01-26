@@ -39,7 +39,8 @@ function build_ruby() {
   local version=$1
   rbenv install -f $version && \
     RBENV_VERSION=$version rbenv exec gem install bundler rake --no-ri --no-rdoc && \
-    tar zcf $OUTPUT_DIR/$version.tar.gz -C $BUILD_TARGET_PATH $version
+    tar zcf $OUTPUT_DIR/$version.tar.gz -C $BUILD_TARGET_PATH $version && \
+    (cd $OUTPUT_DIR && sha256sum $version.tar.gz > $version.tar.gz.sha256)
 }
 
 if [ $# -gt 0 ]; then
