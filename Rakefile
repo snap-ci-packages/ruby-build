@@ -62,6 +62,40 @@ module Retriable
   end
 end
 
+class Partitioner
+  class << self
+    def distribute(things)
+      result = []
+
+      index = worker_index - 1
+      while index <= things.count do
+        result << things[index]
+        index += total_workers
+      end
+      result.compact!
+
+      result
+    end
+
+    def total_workers
+      @total_workers ||= if ENV['SNAP_WORKER_TOTAL']
+        ENV['SNAP_WORKER_TOTAL'].to_i
+      else
+        1
+      end
+    end
+
+    def worker_index
+      @worker_index ||= if ENV['SNAP_WORKER_INDEX']
+        ENV['SNAP_WORKER_INDEX'].to_i
+      else
+        1
+      end
+    end
+  end
+end
+
+
 include Retriable
 
 class Ruby
@@ -102,7 +136,7 @@ end
 
 def rubies_to_build
   all_versions = fetch_versions_from_rbenv
-  versions_to_build = SnapCI::ParallelTests.partition(:things => all_versions)
+  versions_to_build = Partitioner.distribute(all_versions)
   $stdout.puts "Here is the list of rubies that will be built on this worker - #{versions_to_build.join(', ')}"
   versions_to_build.collect { |v| Ruby.new(v) }
 end
