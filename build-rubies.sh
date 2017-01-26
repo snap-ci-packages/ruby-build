@@ -37,8 +37,14 @@ trap cleanup EXIT
 
 function build_ruby() {
   local version=$1
-  rbenv install -f $version && \
-    RBENV_VERSION=$version rbenv exec gem install bundler --no-ri --no-rdoc && \
+
+  if (echo $version | grep -qE '^(1.8.7|1.9.2)'); then
+    cat patches/ssl_no_ec2m.patch | rbenv install -f $version -p || return 1
+  else
+    rbenv install -f $version || return 1
+  fi
+
+  RBENV_VERSION=$version rbenv exec gem install bundler --no-ri --no-rdoc && \
     tar zcf $OUTPUT_DIR/$version.tar.gz -C $BUILD_TARGET_PATH $version && \
     (cd $OUTPUT_DIR && sha256sum $version.tar.gz > $version.tar.gz.sha256)
 }
