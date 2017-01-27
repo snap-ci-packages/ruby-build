@@ -37,11 +37,20 @@ trap cleanup EXIT
 
 function build_ruby() {
   local version=$1
+  local patch=""
 
   if (echo $version | grep -qE '^(1.8.7|1.9.2)'); then
-    cat patches/ssl_no_ec2m.patch | rbenv install -f $version -p || return 1
-  else
+    patch="ssl_no_ec2m.patch"
+  fi
+
+  if (echo $version | grep -qE '^(2.1.0|2.1.1)'); then
+    patch="readline.patch"
+  fi
+
+  if [ -z "$patch" ]; then
     rbenv install -f $version || return 1
+  else
+    cat patches/$patch | rbenv install -f $version -p || return 1
   fi
 
   RBENV_VERSION=$version rbenv exec gem install bundler --no-ri --no-rdoc && \
