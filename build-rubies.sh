@@ -43,7 +43,7 @@ function build_ruby() {
     patch="ssl_no_ec2m.patch"
   fi
 
-  if (echo $version | grep -qE '^(2.1.0|2.1.1)'); then
+  if (echo $version | grep -qE '^(2.1.0|2.1.1)$'); then
     patch="readline.patch"
   fi
 
