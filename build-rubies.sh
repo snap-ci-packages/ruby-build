@@ -58,6 +58,8 @@ function build_ruby() {
     (cd $OUTPUT_DIR && sha256sum $version.tar.gz > $version.tar.gz.sha256)
 }
 
+rbenv update
+
 if [ $# -gt 0 ]; then
   rubies_to_build="$1"
 else
