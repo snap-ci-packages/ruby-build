@@ -39,11 +39,11 @@ function build_ruby() {
   local version=$1
   local patch=""
 
-  if (echo $version | grep -qE '^(1.8.7|1.9.2)'); then
+  if [[ "$version" =~ ^(1.8.7|1.9.2) ]]; then
     patch="ssl_no_ec2m.patch"
   fi
 
-  if (echo $version | grep -qE '^(2.1.0|2.1.1)$'); then
+  if [[ "$version" =~ ^(2.1.0|2.1.1)$ ]]; then
     patch="readline.patch"
   fi
 
@@ -53,9 +53,15 @@ function build_ruby() {
     cat patches/$patch | rbenv install -f $version -p || return 1
   fi
 
+  if [[ "$version" =~ ^jruby ]]; then
+    archive_name="$version.tar.gz"
+  else
+    archive_name="ruby-$version.tar.gz"
+  fi
+
   RBENV_VERSION=$version rbenv exec gem install bundler --no-ri --no-rdoc && \
-    tar zcf $OUTPUT_DIR/$version.tar.gz -C $BUILD_TARGET_PATH $version && \
-    (cd $OUTPUT_DIR && sha256sum $version.tar.gz > $version.tar.gz.sha256)
+    tar zcf $OUTPUT_DIR/$archive_name -C $BUILD_TARGET_PATH $version && \
+    (cd $OUTPUT_DIR && sha256sum $archive_name > $archive_name.sha256)
 }
 
 rbenv update
