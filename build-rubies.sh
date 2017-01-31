@@ -17,7 +17,7 @@ function fetch_ruby_versions() {
 1.9.3-p551
 2.0.0-p648
 LEGACY
-  rbenv install --list | sed 's/^[ \t]*//g' | grep -E '^(jruby-)?([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)$' | grep -vE '^(1.8|1.9|2.0|jruby-1.5|jruby-1.7.7)'
+  rbenv install --list | sed 's/^[ \t]*//g' | grep -E '^(jruby-)?([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?)$' | grep -vE '^(1\.8|1\.9|2\.0|jruby-1\.5|jruby-1\.7\.7|jruby-9\.0\.3\.0)'
 }
 
 function partition_across_workers() {
